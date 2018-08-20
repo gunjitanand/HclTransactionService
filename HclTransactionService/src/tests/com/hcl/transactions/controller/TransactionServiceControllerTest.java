@@ -31,6 +31,13 @@ public class TransactionServiceControllerTest {
 		ResponseEntity<List<HclOpenBankResponse>> response = underTest.getTransactions();
 		Assert.assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
 	}
+	
+	@Test
+	public void testGetTransactionsSuccessButNoResult() {
+		Mockito.when(hclTransactionService.getTransactionsList()).thenReturn(getHclBankResponseWithNoTx());
+		ResponseEntity<List<HclOpenBankResponse>> response = underTest.getTransactions();
+		Assert.assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+	}
 
 	@Test(expected = RuntimeException.class)
 	public void testGetTransactionsError() {
@@ -105,22 +112,15 @@ public class TransactionServiceControllerTest {
 		Assert.assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCodeValue());
 
 	}
-//	
-//	@Test(expected = RuntimeException.class)
-//	public void testGetTransactionTypeError() {
-//		Mockito.when(hclTransactionService.getTransactionsList()).thenThrow(new RuntimeException());
-//		underTest.getTransactionType("SOME_TYPE");
-//		
-//
-//	}
-//	
-//	@Test
-//	public void testGetTransactionTypeInputNull() {
-//		Mockito.when(hclTransactionService.getTransactionsList()).thenReturn(getHclBankResponseWithTx());
-//		ResponseEntity<List<HclOpenBankResponse>> response = underTest.getTransactionType(null);
-//		Assert.assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCodeValue());
-//
-//	}
+	
+	@Test
+	public void testException() {
+		
+		ResponseEntity<Object> response = underTest.handleAll(new RuntimeException(), null);
+		Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCodeValue());
+
+	}
+
 
 	private List<HclOpenBankResponse> getHclBankResponseWithTx() {
 
@@ -153,6 +153,12 @@ public class TransactionServiceControllerTest {
 		list.add(response2);
 
 		return list;
+
+	}
+	
+	private List<HclOpenBankResponse> getHclBankResponseWithNoTx() {
+
+		return null;
 
 	}
 
